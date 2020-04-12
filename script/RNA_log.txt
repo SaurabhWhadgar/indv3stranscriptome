@@ -1,0 +1,89 @@
+                                             RNA SEQ STEPS
+
+
+
+
+# DATASET SEARCHING #
+   Datasets can be downoaded from SRA.
+#QUALITY CHECKING OF THE READS #
+   fastqc filename.fq
+#INDEXING USING BOWTIE2 #
+   bowtie2-build ref.genome(hg38.fa) index name --threads 10
+#ALIGNMENT USING BOWTIE2 #
+   bowtie2 -x path to ref.genome/.../ref.genome -1 filename.gz(Read1) -2 filename.gz(Read2) -5 12(no of reads starting from 5')  -3 30(no of reads starting from 3') -p 10(threads no.) -S output.sam
+   
+   
+   
+   where -x is for reference (Can use either hg19 or hg38)
+   -1 and -2 is for read 1 and read2 files 
+   -p=no. of threads
+   -5 and -3 command is used if anything needs to be trimmed from either 5' end (-5) or 3' end (-3). If no trimming is required, then run  without -5 and -3. 
+    The output file should be filename.sam.
+
+#RUNNING SAMTOOLS TO SORTED BAM #
+    samtools view -bS output.sam -o output.bam -@ 11
+    samtools sort output.bam -o output_sorted.bam -@ 11
+    samtools index output_sorted.bam -@ 11
+#CHECKING INFORMATION OF MAPPED READS #
+    samtools flagstat output.bam
+#DOWNLOADING BED FILE FROM UCSC TABLE BROWSER #
+    UCSC Browser > Table Browser
+    clade: Mammal
+    genome: Human
+    assembly: hg38
+    group: Genes and Gene Predictions
+    track: NCBI RefSeq
+    region: postion. remove everything in box
+    output format: BED
+    output file: hg38.bed
+    Click on get output
+    Select Whole Gene
+    Click get BED
+#RUNNING MULTIBAMCOV #
+    multiBamCov -bams C1.bam C2.bam C3.bam N1.bam N2.bam N3.bam -bed hg38_whole.bed > output.bed
+    multiBamCov -bams C1.bam C2.bam C3.bam N1.bam N2.bam N3.bam -bed hg38_whole.bed > output.tsv
+#FOR GETTING THE COLUMN CONTAINING INFORMATION #
+    cut -f 4,13- output.tsv
+#FOR GETTING THE GENE NAMES
+    Go to UCSC Table Browser
+    Track: NCBI RefSeq
+    Output format: select fields from primary and related tables
+    Empty output file
+    Get output
+    Check name, name2
+    Get output
+#FOR CREATING SEPARATE FILE WITH UNIQUE ENTRIES
+    cut -f 13- output.tsv > read_count_values.tsv
+    sed -i '1d' hg38_genenames.txt
+  //-i permanently changes file//
+
+ //Check number of lines in both files:
+     wc -l hg38_genenames.txt
+     wc -l read_count_values.tsv
+
+     Make a tab separated file with columns geneName, C1, C2, C3, N1, N2, N3
+     paste hg38_genenames.txt read_count_values.tsv > new.tsv
+     sed -i '1igeneName\tC1\tC2\tC3\tN1\tN2\tN3' new.tsv
+
+#FIND UNIQUE ENTRIES#
+     awk '!a[$1]++' new.tsv > uniq.tsv
+       a = name of array
+       $1 = unique entries based on column 1
+       [] = index
+       ! And ++ = if not unique, do not increase index and do not print
+#Check lines of uniq.tsv#
+       wc -l uniq.tsv
+#RUNNING DESEQ
+       Line 5: read.table(‘the final unique tsv file’)
+       Line 7: change geneID to geneName
+       Also change the name of the column as sample name(make sure order of control and normal sample is correct)
+       ->Run the script "DeSeq.r"
+#ANALYSING DESEQ#
+   After running deseq 
+   The cut off was <-1.5 AND >1.5 for log fold change and p value 0.05 and 0.01
+         awk -F "\"*,\"*" '{if(-1.5<$6>1.5 && $8<=0.05) print $2 "\t" $6 "\t" $8 }' new.csv > 1.5_0.05_cutoff.txt
+          //Because field separator is comma so "/" is used,if its tab separated remove it.
+#TO REMOVE NA FROM THE OUTPUT
+         grep -v 'NA' 1.5_0.01_cutoff.txt > 1.5_0.01_cutoff_Disarib.txt  
+
+
