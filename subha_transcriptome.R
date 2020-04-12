@@ -73,7 +73,7 @@ head(stack(countsTable))
 ggplot(stack(countsTable), aes(x = ind, y = values)) +
   geom_boxplot()+ geom_line(aes(group = values), colour = "blue")
 
-stack(countsTable),
+stack(countsTable)
 ggplot(stack(countsTable), aes(ind, values)) +
   geom_boxplot(aes(fill = ind)) +
   theme_classic()+ 
