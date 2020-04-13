@@ -1,3 +1,3 @@
 # indv3stranscriptome
 Transcriptome scripts for Indv3s
-A line I wrote on my local computer
+Please use the for_paper directory to get the images.
