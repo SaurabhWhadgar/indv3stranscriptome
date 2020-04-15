@@ -88,33 +88,35 @@ p
 dat <- cdd[,2:12]
 dat.m <- melt(dat, measure.vars=c("EM0_1","EM2_4","EM4_8","EM8_12","Larva","Pupa","AdFe","AdMa","PBM","PEM","FeCa"))
 
-dat.m$value<-log2(dat.m$value)
-stack(cdd)
-df <- dat.m %>%
-  ggplot(aes(x=variable, y=value, fill=variable, alpha=0.1)) + 
-  geom_boxplot() +
-  theme_ipsum() +
-  theme(legend.position = "left") +
-  xlab("")
-df
+# dat.m$value<-log2(dat.m$value)
+# stack(cdd)
+# df <- dat.m %>%
+#   ggplot(aes(x=variable, y=value, fill=variable, alpha=0.1)) + 
+#   geom_boxplot() +
+#   theme_ipsum() +
+#   theme(legend.position = "left") +
+#   xlab("")
+# df
 
 ############################# HEATMAP PLOTTING #############################################
 
 ### Findig Std.Devaiation ( Variance )
+rownames(rpkm)<-cdd$gene
 V <- apply(rpkm, 1, var)
+
+head(V)
 rownames(tpm)<-cdd$gene
-  head(V)
-V <- apply(tpm, 1, var)
+V1 <- apply(tpm, 1, var)
 
 #sort the results by variance in decreasing order and select the top 100 genes (ROWNUMBER)
-selectedGenes <- names(V[order(V, decreasing = T)][1:100])
+selectedGenes <- names(V1[order(V1, decreasing = T)][1:100])
 
 head(selectedGenes)
 ### Pheatmap
 colData <- read.table('coldata_file', header = T, sep = '\t', stringsAsFactors = TRUE)
 rownames(colData) <- colnames(rpkm)
 rownames(colData) <- colnames(tpm)
-write.table(rpkm,"RPKM_FILE",sep = "\t",quote = F)
+#write.table(rpkm,"RPKM_FILE",sep = "\t",quote = F)
 
 pheatmap(tpm[selectedGenes,], scale = 'row', 
          show_rownames = T, 
@@ -189,7 +191,7 @@ pheatmap(df[1:100,], scale = 'row', fontsize_row = 6,
   dev.off()
 
   geneofint<-NULL
- geneofint <-  rpkm[c("ID=g4079","ID=g3704",
+ geneofint <-  rpkm[c("ID=g3704",
              "ID=g6054","ID=g6842",
              "ID=g6843","ID=g6908",
              "ID=g5128","ID=g18313",
@@ -197,10 +199,10 @@ pheatmap(df[1:100,], scale = 'row', fontsize_row = 6,
              "ID=g16696","ID=g12024",
              "ID=g12863"),]
 
- geneofint$Gene <- c("Rec","Spo11","Ace1","CYP6P9a/b","CYP6P4","Rad51","Cardinal","KH","FREP1","Mre11","KDR","Rab5","CYP6M10a")
+ geneofint$Gene <- c("Spo11","Ace1","CYP6P9a/b","CYP6P4","Rad51","Cardinal","KH","FREP1","Mre11","KDR","Rab5","CYP6M10a")
  
  
-library(reshape)
+
 Molten <- melt(geneofint, id.vars = "Gene")
 head(Molten)
 ggplot(Molten, aes(x = variable, y = value, colour = Gene, group=Gene)) + 

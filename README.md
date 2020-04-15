@@ -1,5 +1,4 @@
 # indv3stranscriptome
-<<<<<<< HEAD
 Transcriptome data/scripts for Indv3s
 Sample Details
 ## Sample from SRA Database NCBI SRA (SRP013839).
@@ -17,4 +16,4 @@ Sample Details
 =======
 Transcriptome scripts for Indv3s
 Please use the for_paper directory to get the images.
->>>>>>> 1b40f8f5a09aacb8194c24c78afb51d085b51ee1
+  
