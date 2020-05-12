@@ -13,8 +13,8 @@ library(ggfortify)
 library(reshape)
 library(wesanderson)
 
-#Reading File and making matrix dataframe
-cdd <- as.data.frame(read.csv("63_04_05_06_07_08_09_10_15_16_41.count.extra.gene",header = F,sep="\t"))
+#Reading File and making matrix dataframe 
+cdd <- as.data.frame(read.csv("63_04_05_06_07_08_09_10_15_16_41.count.extra.updated",header = F,sep="\t"))
 cdd<-cdd[,-c(1,2,3,6,7,8)]
 cdd <- cdd[c(3,4,5,6,7,8,9,10,11,12,13,14,2,1)]
 cdd <-  cdd[c(1,11,12,2,3,4,5,6,7,8,9,10,13,14)]
@@ -22,6 +22,7 @@ cdd$V21 <- cdd$V5-cdd$V4
 cdd <- cdd[c(1,2,3,4,5,6,7,8,9,10,11,12,15)]
 colnames(cdd) <- c("gene","EM0_1","EM2_4","EM4_8","EM8_12","Larva","Pupa","AdFe","AdMa","PBM","PEM","FeCa","length")
 
+head(cdd)
 
 df <- data.frame(colSums(subset(cdd, select = c(-length,-gene))))
 
@@ -38,7 +39,7 @@ p
 # Taking gene lenghts as vector
 geneLengths <- as.vector(subset(cdd, select = c(length)))
 head(geneLengths)
-
+rpkm<-edgeR::rpkm(subset(cdd,select = c(-length,-gene),cdd$length))
 # compute RPKM
 rpkm <- apply(X = subset(cdd, select = c(-length,-gene)), 
               MARGIN = 2, 
@@ -92,7 +93,7 @@ p
 V <- apply(rpkm, 1, var)
 rownames(rpkm)<-cdd$gene
   head(V)
-V <- apply(tpm, 1, var)
+V <- apply(tpm, 1, var) 
 
 #sort the results by variance in decreasing order and select the top 100 genes (ROWNUMBER)
 selectedGenes <- names(V[order(V, decreasing = T)][1:100])
@@ -176,6 +177,25 @@ geneofint <- rpkm[c(
              "ID=g12024","ID=g12863",
              "ID=g16696","ID=g18569")
              ,]
+
+geneofor <- rpkm[c(
+  "ID=g20901","ID=g20899","ID=g20871","ID=g19986","ID=g18446","ID=g18340t1","ID=g18340t2",
+  "ID=g16275","ID=g15212",'ID=g15210',"ID=g15209t2",
+  "ID=g15209t1","ID=g14613","ID=g13672","ID=g13457t2","ID=g13457t1",
+  "ID=g13438t3","ID=g13438t2","ID=g13438t1","ID=g13437","ID=g13436",
+  "ID=g13119","ID=g12730","ID=g12231","ID=g11749","ID=g11090","ID=g10285", "ID=g10284",  "ID=g10281",  "ID=g10271",  "ID=g10269",
+  "ID=g9046","ID=g8440","ID=g7370","ID=g7200","ID=g6376","ID=g6342",
+  "ID=g6340","ID=g6261","ID=g4286","ID=g4285","ID=g3881","ID=g3880","ID=g3879","ID=g3567",
+  "ID=g3566","ID=g3288","ID=g3284","ID=g3028","ID=g2853","ID=g1315","ID=g1302","ID=g1301",  "ID=g180"
+),]
+geneofor
+pheatmap(geneofor,scale = 'row', fontsize_row = 8,
+         show_rownames = T, 
+         cluster_rows = F,
+         cluster_cols = F,
+         main = "Differential OR")
+
+nrow(geneofor)
 
 geneofint$Gene <- c("Spo11","Cardinal","ACE1","CYP6P9a/b","CYP6P4",
                      "RAD51","MRE11","KH","RAB5","CYP6M10a","KDR","FREP1")
